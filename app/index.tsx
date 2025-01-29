@@ -1,13 +1,5 @@
-import Welcome from '@/components/welcome';
-import { View } from 'react-native';
+import Home from './home';
 
-export default function Index() {
-  return (
-    <View
-      style={{
-        flex: 1,
-      }}>
-      <Welcome />
-    </View>
-  );
+export default function Index(): JSX.Element {
+  return <Home />;
 }

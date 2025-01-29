@@ -10,17 +10,35 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin';
 import * as SQLite from 'expo-sqlite';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, ReactNode, createContext, useState } from 'react';
 import { SafeAreaView, Text } from 'react-native';
 
 import { DB_NAME } from '@/constants/db';
 import { db } from '@/db/client';
+import { Task } from '@/db/schema';
 import migrations from '@/drizzle/migrations';
 
 // TanStack query client.
 export const queryClient = new QueryClient();
 
 type AppProvidersProps = PropsWithChildren<{}>;
+
+type SelectedTaskContextType = {
+  selectedTask: Task | null;
+  setSelectedTask: (task: Task | null) => void;
+};
+
+export const SelectedTaskContext = createContext<SelectedTaskContextType | undefined>(undefined);
+
+const SelectedTaskProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  return (
+    <SelectedTaskContext.Provider value={{ selectedTask, setSelectedTask }}>
+      {children}
+    </SelectedTaskContext.Provider>
+  );
+};
 
 export default function AppProviders({ children }: AppProvidersProps) {
   // Expo Drizzle Studio plugin.
@@ -46,5 +64,9 @@ export default function AppProviders({ children }: AppProvidersProps) {
       </SafeAreaView>
     );
   }
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SelectedTaskProvider>{children}</SelectedTaskProvider>
+    </QueryClientProvider>
+  );
 }
